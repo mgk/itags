@@ -1,0 +1,42 @@
+---
+version: 1
+interactions:
+- request:
+    body: ""
+    form: {}
+    headers: {}
+    url: https://hub.docker.com/v2/repositories/mgkio/figlet/tags/?page=1&page_size=100
+    method: GET
+  response:
+    body: '{"count": 2, "next": null, "previous": null, "results": [{"name": "latest",
+      "full_size": 3161035, "images": [{"size": 3161035, "architecture": "amd64",
+      "variant": null, "features": null, "os": "linux", "os_version": null, "os_features":
+      null}], "id": 26881768, "repository": 5467852, "creator": 197014, "last_updater":
+      197014, "last_updated": "2018-05-06T14:39:50.077432Z", "image_id": null, "v2":
+      true}, {"name": "1", "full_size": 3161035, "images": [{"size": 3161035, "architecture":
+      "amd64", "variant": null, "features": null, "os": "linux", "os_version": null,
+      "os_features": null}], "id": 26881767, "repository": 5467852, "creator": 197014,
+      "last_updater": 197014, "last_updated": "2018-05-06T14:39:49.642243Z", "image_id":
+      null, "v2": true}]}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 06 May 2018 22:23:45 GMT
+      Server:
+      - nginx
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Cookie
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+    status: 200 OK
+    code: 200
+    duration: ""

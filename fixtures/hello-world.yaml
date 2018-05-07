@@ -1,0 +1,84 @@
+---
+version: 1
+interactions:
+- request:
+    body: ""
+    form: {}
+    headers: {}
+    url: https://hub.docker.com/v2/repositories/library/hello-world/tags/?page=1&page_size=100
+    method: GET
+  response:
+    body: '{"count": 6, "next": null, "previous": null, "results": [{"name": "linux",
+      "full_size": 985, "images": [{"size": 1098, "architecture": "s390x", "variant":
+      null, "features": null, "os": "linux", "os_version": null, "os_features": null},
+      {"size": 1295, "architecture": "ppc64le", "variant": null, "features": null,
+      "os": "linux", "os_version": null, "os_features": null}, {"size": 312098, "architecture":
+      "386", "variant": null, "features": null, "os": "linux", "os_version": null,
+      "os_features": null}, {"size": 1085, "architecture": "arm64", "variant": null,
+      "features": null, "os": "linux", "os_version": null, "os_features": null}, {"size":
+      989, "architecture": "arm", "variant": null, "features": null, "os": "linux",
+      "os_version": null, "os_features": null}, {"size": 1026, "architecture": "arm",
+      "variant": null, "features": null, "os": "linux", "os_version": null, "os_features":
+      null}, {"size": 985, "architecture": "amd64", "variant": null, "features": null,
+      "os": "linux", "os_version": null, "os_features": null}], "id": 15194051, "repository":
+      31760, "creator": 1156886, "last_updater": 1156886, "last_updated": "2018-05-03T16:47:09.838288Z",
+      "image_id": null, "v2": true}, {"name": "latest", "full_size": 985, "images":
+      [{"size": 128506944, "architecture": "amd64", "variant": null, "features": null,
+      "os": "windows", "os_version": "10.0.16299.371", "os_features": null}, {"size":
+      407946052, "architecture": "amd64", "variant": null, "features": null, "os":
+      "windows", "os_version": "10.0.14393.2189", "os_features": null}, {"size": 1098,
+      "architecture": "s390x", "variant": null, "features": null, "os": "linux", "os_version":
+      null, "os_features": null}, {"size": 1295, "architecture": "ppc64le", "variant":
+      null, "features": null, "os": "linux", "os_version": null, "os_features": null},
+      {"size": 312098, "architecture": "386", "variant": null, "features": null, "os":
+      "linux", "os_version": null, "os_features": null}, {"size": 1085, "architecture":
+      "arm64", "variant": null, "features": null, "os": "linux", "os_version": null,
+      "os_features": null}, {"size": 989, "architecture": "arm", "variant": null,
+      "features": null, "os": "linux", "os_version": null, "os_features": null}, {"size":
+      1026, "architecture": "arm", "variant": null, "features": null, "os": "linux",
+      "os_version": null, "os_features": null}, {"size": 985, "architecture": "amd64",
+      "variant": null, "features": null, "os": "linux", "os_version": null, "os_features":
+      null}], "id": 24937, "repository": 31760, "creator": 7, "last_updater": 1156886,
+      "last_updated": "2018-04-13T20:43:20.648193Z", "image_id": null, "v2": true},
+      {"name": "nanoserver", "full_size": 407946052, "images": [{"size": 128506944,
+      "architecture": "amd64", "variant": null, "features": null, "os": "windows",
+      "os_version": "10.0.16299.371", "os_features": null}, {"size": 407946052, "architecture":
+      "amd64", "variant": null, "features": null, "os": "windows", "os_version": "10.0.14393.2189",
+      "os_features": null}], "id": 6273972, "repository": 31760, "creator": 2215,
+      "last_updater": 1156886, "last_updated": "2018-04-12T10:44:03.313800Z", "image_id":
+      null, "v2": true}, {"name": "nanoserver-1709", "full_size": 128506944, "images":
+      [{"size": 128506944, "architecture": "amd64", "variant": null, "features": null,
+      "os": "windows", "os_version": "10.0.16299.371", "os_features": null}], "id":
+      18410528, "repository": 31760, "creator": 1156886, "last_updater": 1156886,
+      "last_updated": "2018-04-12T10:43:05.421554Z", "image_id": null, "v2": true},
+      {"name": "nanoserver-sac2016", "full_size": 407946052, "images": [{"size": 407946052,
+      "architecture": "amd64", "variant": null, "features": null, "os": "windows",
+      "os_version": "10.0.14393.2189", "os_features": null}], "id": 18410527, "repository":
+      31760, "creator": 1156886, "last_updater": 1156886, "last_updated": "2018-04-12T10:42:57.082725Z",
+      "image_id": null, "v2": true}, {"name": "nanoserver1709", "full_size": 99068846,
+      "images": [{"size": 99068846, "architecture": "amd64", "variant": null, "features":
+      null, "os": "windows", "os_version": "10.0.16299.64", "os_features": null}],
+      "id": 17399107, "repository": 31760, "creator": 1156886, "last_updater": 1156886,
+      "last_updated": "2017-11-21T05:43:32.890071Z", "image_id": null, "v2": true}]}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 06 May 2018 22:23:45 GMT
+      Server:
+      - nginx
+      Strict-Transport-Security:
+      - max-age=31536000
+      Vary:
+      - Cookie
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+    status: 200 OK
+    code: 200
+    duration: ""
