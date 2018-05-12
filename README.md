@@ -22,7 +22,9 @@ takes ~1.5 seconds to retrieve 3358 tags.
 
 ## Install
 
-Download a [binary](https://github.com/mgk/itags/releases) or:
+Download a [released binary](https://github.com/mgk/itags/releases).
+
+Or to use the latest development version:
 
 ```bash
 go get github.com/mgk/itags/cmd/itags
@@ -36,18 +38,23 @@ itags redis
 
 # Get tags for multiple repos
 itags hello-world mgkio/figlet hello-world
+
+# Get tags for my-private-repo
+itags -u my-username -p secret my-username/my-private-repo
+
+# Get tags for private repo using DOCKER_TOKEN
+export DOCKER_TOKEN=my-token
+itags my-username/my-private-repo
 ```
 
 Go pacakge API: see tests for examples.
 
-## Notes
+## Notes on private repos
+If username and password are supplied they are used to get a docker
+[JWT](https://jwt.io/) which is sent with each request to the docker registry.
+Otherwise if the environment variable `DOCKER_TOKEN` is set it is used instead.
 
-Private repositories are supported, but currently require that you set the
-environment variable `DOCKER_TOKEN` to a valid JWT. This is a stop-gap measure.
-`itags` will add support for acquiring the JWT via the
-`https://hub.docker.com/v2/users/login/` endpoint.
-
-For the ambitious you can get a JWT with `curl` and `jq`:
+You can get a JWT with `curl` and [jq](https://stedolan.github.io/jq/):
 
 ```bash
 export DOCKER_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "MY_USERNAME", "password": "MY_PASSWORD"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
@@ -75,7 +82,6 @@ Many thanks to Jerry Baker for the [docker KB article showing how it's done](htt
 the max page size returned by docker is 100.*
 
 ### Todos
-- prompt for login and generate token
 - CI build
 - go doc for package
 - negative test cases
