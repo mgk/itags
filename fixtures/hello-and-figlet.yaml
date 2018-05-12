@@ -5,7 +5,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/mgkio/figlet/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/mgkio/figlet/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 2, "next": null, "previous": null, "results": [{"name": "latest",
@@ -44,7 +44,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/hello-world/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/hello-world/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 6, "next": null, "previous": null, "results": [{"name": "linux",
