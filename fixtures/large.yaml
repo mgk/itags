@@ -5,7 +5,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/alpine/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/alpine/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 11, "next": null, "previous": null, "results": [{"name": "edge",
@@ -110,7 +110,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/redis/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/redis/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 142, "next": "https://hub.docker.com/v2/repositories/library/redis/tags/?page=2&page_size=100",
@@ -824,7 +824,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/busybox/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/busybox/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 95, "next": null, "previous": null, "results": [{"name": "latest",
@@ -1544,7 +1544,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/nginx/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/nginx/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 153, "next": "https://hub.docker.com/v2/repositories/library/nginx/tags/?page=2&page_size=100",
@@ -2405,7 +2405,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/postgres/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/postgres/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 178, "next": "https://hub.docker.com/v2/repositories/library/postgres/tags/?page=2&page_size=100",
@@ -3305,7 +3305,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/golang/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/golang/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 561, "next": "https://hub.docker.com/v2/repositories/library/golang/tags/?page=2&page_size=100",
@@ -4320,7 +4320,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/ubuntu/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/ubuntu/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 257, "next": "https://hub.docker.com/v2/repositories/library/ubuntu/tags/?page=2&page_size=100",
@@ -5221,7 +5221,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/python/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/python/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 496, "next": "https://hub.docker.com/v2/repositories/library/python/tags/?page=2&page_size=100",
@@ -6647,7 +6647,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/openjdk/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/openjdk/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 622, "next": "https://hub.docker.com/v2/repositories/library/openjdk/tags/?page=2&page_size=100",
@@ -8101,7 +8101,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/docker/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/docker/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 667, "next": "https://hub.docker.com/v2/repositories/library/docker/tags/?page=2&page_size=100",
@@ -9232,7 +9232,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/debian/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/debian/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 177, "next": "https://hub.docker.com/v2/repositories/library/debian/tags/?page=2&page_size=100",
@@ -10970,7 +10970,7 @@ interactions:
     url: https://hub.docker.com/v2/repositories/library/nginx/tags/?page=2&page_size=100
     method: GET
   response:
-    body: '{"count": 153, "next": null, "previous": "https://hub.docker.com/v2/repositories/library/nginx/tags/?page=1&page_size=100",
+    body: '{"count": 153, "next": null, "previous": "https://hub.docker.com/v2/repositories/library/nginx/tags/?page_size=100",
       "results": [{"name": "1.11.8", "full_size": 71544045, "images": [{"size": 71544045,
       "architecture": "amd64", "variant": null, "features": null, "os": "linux", "os_version":
       null, "os_features": null}], "id": 7091308, "repository": 21171, "creator":
@@ -11801,7 +11801,7 @@ interactions:
     url: https://hub.docker.com/v2/repositories/library/postgres/tags/?page=2&page_size=100
     method: GET
   response:
-    body: '{"count": 178, "next": null, "previous": "https://hub.docker.com/v2/repositories/library/postgres/tags/?page=1&page_size=100",
+    body: '{"count": 178, "next": null, "previous": "https://hub.docker.com/v2/repositories/library/postgres/tags/?page_size=100",
       "results": [{"name": "9.3.15-alpine", "full_size": 13561971, "images": [{"size":
       13561971, "architecture": "amd64", "variant": null, "features": null, "os":
       "linux", "os_version": null, "os_features": null}], "id": 6119669, "repository":
@@ -12587,7 +12587,7 @@ interactions:
     method: GET
   response:
     body: '{"count": 257, "next": "https://hub.docker.com/v2/repositories/library/ubuntu/tags/?page=3&page_size=100",
-      "previous": "https://hub.docker.com/v2/repositories/library/ubuntu/tags/?page=1&page_size=100",
+      "previous": "https://hub.docker.com/v2/repositories/library/ubuntu/tags/?page_size=100",
       "results": [{"name": "xenial-20161121", "full_size": 50098887, "images": [{"size":
       50098887, "architecture": "amd64", "variant": null, "features": null, "os":
       "linux", "os_version": null, "os_features": null}], "id": 6465323, "repository":
@@ -15811,7 +15811,7 @@ interactions:
     method: GET
   response:
     body: '{"count": 496, "next": "https://hub.docker.com/v2/repositories/library/python/tags/?page=3&page_size=100",
-      "previous": "https://hub.docker.com/v2/repositories/library/python/tags/?page=1&page_size=100",
+      "previous": "https://hub.docker.com/v2/repositories/library/python/tags/?page_size=100",
       "results": [{"name": "2.7.15-windowsservercore", "full_size": 5450222797, "images":
       [{"size": 3091037218, "architecture": "amd64", "variant": null, "features":
       null, "os": "windows", "os_version": "10.0.16299.371", "os_features": null},
@@ -18027,7 +18027,7 @@ interactions:
     method: GET
   response:
     body: '{"count": 561, "next": "https://hub.docker.com/v2/repositories/library/golang/tags/?page=3&page_size=100",
-      "previous": "https://hub.docker.com/v2/repositories/library/golang/tags/?page=1&page_size=100",
+      "previous": "https://hub.docker.com/v2/repositories/library/golang/tags/?page_size=100",
       "results": [{"name": "1.8.7-onbuild", "full_size": 276434977, "images": [{"size":
       242092185, "architecture": "s390x", "variant": null, "features": null, "os":
       "linux", "os_version": null, "os_features": null}, {"size": 248198985, "architecture":
@@ -21436,7 +21436,7 @@ interactions:
     url: https://hub.docker.com/v2/repositories/library/debian/tags/?page=2&page_size=100
     method: GET
   response:
-    body: '{"count": 177, "next": null, "previous": "https://hub.docker.com/v2/repositories/library/debian/tags/?page=1&page_size=100",
+    body: '{"count": 177, "next": null, "previous": "https://hub.docker.com/v2/repositories/library/debian/tags/?page_size=100",
       "results": [{"name": "oldoldstable-20171009", "full_size": 38103151, "images":
       [{"size": 37433240, "architecture": "amd64", "variant": null, "features": null,
       "os": "linux", "os_version": null, "os_features": null}, {"size": 35656393,
@@ -21930,7 +21930,7 @@ interactions:
     method: GET
   response:
     body: '{"count": 667, "next": "https://hub.docker.com/v2/repositories/library/docker/tags/?page=3&page_size=100",
-      "previous": "https://hub.docker.com/v2/repositories/library/docker/tags/?page=1&page_size=100",
+      "previous": "https://hub.docker.com/v2/repositories/library/docker/tags/?page_size=100",
       "results": [{"name": "18.02.0-dind", "full_size": 45999247, "images": [{"size":
       45309683, "architecture": "s390x", "variant": null, "features": null, "os":
       "linux", "os_version": null, "os_features": null}, {"size": 40103007, "architecture":
@@ -22906,7 +22906,7 @@ interactions:
     method: GET
   response:
     body: '{"count": 622, "next": "https://hub.docker.com/v2/repositories/library/openjdk/tags/?page=3&page_size=100",
-      "previous": "https://hub.docker.com/v2/repositories/library/openjdk/tags/?page=1&page_size=100",
+      "previous": "https://hub.docker.com/v2/repositories/library/openjdk/tags/?page_size=100",
       "results": [{"name": "10.0.1", "full_size": 395066239, "images": [{"size": 351176576,
       "architecture": "s390x", "variant": null, "features": null, "os": "linux", "os_version":
       null, "os_features": null}, {"size": 382751546, "architecture": "ppc64le", "variant":
@@ -25693,7 +25693,7 @@ interactions:
     url: https://hub.docker.com/v2/repositories/library/redis/tags/?page=2&page_size=100
     method: GET
   response:
-    body: '{"count": 142, "next": null, "previous": "https://hub.docker.com/v2/repositories/library/redis/tags/?page=1&page_size=100",
+    body: '{"count": 142, "next": null, "previous": "https://hub.docker.com/v2/repositories/library/redis/tags/?page_size=100",
       "results": [{"name": "2-32bit", "full_size": 75650064, "images": [{"size": 75650064,
       "architecture": "amd64", "variant": null, "features": null, "os": "linux", "os_version":
       null, "os_features": null}], "id": 577519, "repository": 21187, "creator": 2215,

@@ -64,14 +64,6 @@ export DOCKER_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"
 ```
 replacing `MY_USERNAME` and `MY_PASSWORD` with your docker username and password.
 
-REST purists may correctly point out that `itags` constructs its own URLs and
-and is thus not a [HATEOAS](https://en.wikipedia.org/wiki/HATEOAS) client. This
-is largely because I wanted to run mutiple HTTP requests in parallel to retrieve
-a large number of tags quickly. A HATEOAS mode would be interesting to add: it
-would strictly follow the `next` links in the tag listings instead of generating
-its own page URLs. It could still run requests in parallel for multiple
-repositories, but for a given repository the requests would be sequential.
-
 ## Feedback
 
 Comments, corrections, and questions are welcome. Please open [an
