@@ -1,8 +1,10 @@
-VERSION = 1.0.0
+VERSION = 2.0.0
 PKG = ./cmd/itags
 PLATFORMS = darwin/386 darwin/amd64 linux/386 linux/amd64 linux/arm windows/386 windows/amd64
 
 LDFLAGS = -ldflags="-X main.Version=$(VERSION)"
+
+default: test
 
 all: clean test dist
 
@@ -21,6 +23,6 @@ version:
 dist:
 	@gox -verbose $(LDFLAGS) \
 		-osarch="$(PLATFORMS)" \
-        -output "dist/{{.Dir}}_$(VERSION)_{{.OS}}_{{.Arch}}" $(PKG)
+        -output "dist/{{.Dir}}-$(VERSION)-{{.OS}}-{{.Arch}}" $(PKG)
 
-.PHONY: all clean test install version dist
+.PHONY: default all clean test install version dist
