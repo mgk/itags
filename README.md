@@ -1,4 +1,7 @@
 # itags
+[![Build Status](https://img.shields.io/travis/mgk/itags.svg)](https://travis-ci.org/mgk/itags)
+![Flux Cap](https://img.shields.io/badge/flux%20capacitor-1.21%20GW-orange.svg)
+
 Quickly get tags for docker repositories using the docker hub REST API.
 
 It is surprisingly difficult to list the tags for a given docker image
