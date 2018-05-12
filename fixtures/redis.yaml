@@ -5,7 +5,7 @@ interactions:
     body: ""
     form: {}
     headers: {}
-    url: https://hub.docker.com/v2/repositories/library/redis/tags/?page=1&page_size=100
+    url: https://hub.docker.com/v2/repositories/library/redis/tags/?page_size=100
     method: GET
   response:
     body: '{"count": 142, "next": "https://hub.docker.com/v2/repositories/library/redis/tags/?page=2&page_size=100",

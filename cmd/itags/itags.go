@@ -13,7 +13,7 @@ import (
 	docopt "github.com/docopt/docopt-go"
 )
 
-// Version - overridden by -ldflags
+// Version - overridden by -ldflags for releases
 var Version = "dev"
 
 func main() {

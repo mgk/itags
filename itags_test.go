@@ -130,7 +130,15 @@ func TestGetTagsForRepositories(t *testing.T) {
 	}, tags)
 }
 
-func TestGetDetailsLarge(t *testing.T) {
+func TestGetDetailsLargeSingleRepo(t *testing.T) {
+	tape, http := mockHTTP("large-single")
+	defer tape.Stop()
+
+	tags := GetTagDetails([]string{"ubuntu"}, http, "", NumWorkers)
+	assertEqual(t, "tags", 1, len(tags))
+	assertEqual(t, "ubuntu repo", 257, len(tags["ubuntu"]))
+}
+func TestGetDetailsLargeMultipleRepos(t *testing.T) {
 	tape, http := mockHTTP("large")
 	defer tape.Stop()
 
@@ -153,6 +161,6 @@ func TestGetDetailsLarge(t *testing.T) {
 	}
 	tags := GetTagDetails(repos, http, "", NumWorkers)
 	for repo, count := range counts {
-		assertEqual(t, repo, len(tags[repo]), count)
+		assertEqual(t, repo, count, len(tags[repo]))
 	}
 }

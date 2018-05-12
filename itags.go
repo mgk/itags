@@ -21,14 +21,11 @@ const (
 // Job - tag request to be made
 type Job struct {
 	Repository string
-	Page       int
 }
 
 // JobResult - result of Job
 type JobResult struct {
 	Repository string
-	Page       int
-	Count      int
 	Tags       []Tag
 	Error      error
 }
@@ -80,7 +77,6 @@ func GetTags(repository string, httpClient *http.Client, jwt string, numWorkers 
 // GetTagsForRepository get tag names for a repository
 func GetTagsForRepository(repository string, httpClient *http.Client, jwt string, numWorkers int) []string {
 	tags := GetTagDetails([]string{repository}, httpClient, jwt, numWorkers)[repository]
-	// log.Printf("tags --> %v\n", tags)
 	answer := make([]string, len(tags))
 	for i, tag := range tags {
 		answer[i] = tag.Name
@@ -108,56 +104,36 @@ func GetTagDetails(repositories []string, httpClient *http.Client, jwt string, n
 	}
 	tags := make(map[string][]Tag)
 
+	// create channels for jobs to perform and their results
 	jobs := make(chan Job, len(repositories))
-	firstResults := make(chan JobResult, len(repositories))
+	results := make(chan JobResult, len(repositories))
+
+	// create pool of workers that receive jobs and send results
 	for i := 1; i <= numWorkers; i++ {
-		go worker(httpClient, jwt, jobs, firstResults)
+		go worker(i, httpClient, jwt, jobs, results)
 	}
 
+	// create one job for each repository to query
 	for _, r := range repositories {
-		jobs <- Job{Repository: r, Page: 1}
+		jobs <- Job{Repository: r}
 	}
 	close(jobs)
 
-	batches := make([]Job, 0, len(repositories))
-	for range repositories {
-		r := <-firstResults
-		if r.Error != nil {
-			fmt.Printf("%v", r.Error)
-		}
-		tags[r.Repository] = append(tags[r.Repository], r.Tags...)
-		pages := (r.Count - 1) / pageSize
-		for i := 0; i < pages; i++ {
-			batches = append(batches, Job{Repository: r.Repository, Page: i + 2})
-		}
-	}
-
-	results := make(chan JobResult, min(len(batches), 1000))
-	jobs = make(chan Job, min(len(batches), 1000))
-	for i := 1; i <= numWorkers; i++ {
-		go worker(httpClient, jwt, jobs, results)
-	}
-
-	for _, b := range batches {
+	// collect the results
+	for len(tags) < len(repositories) {
 		select {
-		case jobs <- b:
+		case r := <-results:
+			tags[r.Repository] = append(tags[r.Repository], r.Tags...)
 		default:
-			sleepMillis(20)
+			sleepMillis(50)
 		}
-	}
-	close(jobs)
-
-	for range batches {
-		r := <-results
-		tags[r.Repository] = append(tags[r.Repository], r.Tags...)
 	}
 	return tags
 }
 
-func worker(httpClient *http.Client, jwt string, jobs <-chan Job, results chan<- JobResult) {
+func worker(id int, httpClient *http.Client, jwt string, jobs <-chan Job, results chan<- JobResult) {
 	for job := range jobs {
-		// results <- fakeTagBatch(job)
-		results <- tagBatch(httpClient, jwt, job)
+		results <- queryTagsForRepository(httpClient, jwt, job)
 	}
 }
 
@@ -168,14 +144,8 @@ func fakeTagBatch(job Job) JobResult {
 	for i := 0; i < pageSize; i++ {
 		tags[i] = Tag{Name: fmt.Sprintf("tag-%d", i+1)}
 	}
-	var count int
-	if job.Page == 1 {
-		count = rand.Intn(130)
-	}
 	return JobResult{
 		Repository: job.Repository,
-		Page:       job.Page,
-		Count:      count,
 		Tags:       tags,
 	}
 }
@@ -204,37 +174,46 @@ func Authenticate(httpClient *http.Client, credentials Credentials) (string, err
 	return loginResponse.Token, err
 }
 
-func tagBatch(httpClient *http.Client, jwt string, job Job) JobResult {
+func queryTagsForRepository(httpClient *http.Client, jwt string, job Job) JobResult {
 	repository := job.Repository
+
+	// handle "official" docker repos
 	if !strings.Contains(repository, "/") {
 		repository = "library/" + repository
 	}
-	url := fmt.Sprintf("%s/%s/tags/?page=%d&page_size=%d",
-		repositoryBaseURL, repository, job.Page, pageSize)
+	url := fmt.Sprintf("%s/%s/tags/?page_size=%d",
+		repositoryBaseURL, repository, pageSize)
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return JobResult{Error: err}
-	}
+	var tags []Tag
+	for url != "" {
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return JobResult{Error: err}
+		}
 
-	if jwt != "" {
-		req.Header.Add("Authorization", fmt.Sprintf("JWT %s", jwt))
-	}
-	res, err := httpClient.Do(req)
-	if err != nil {
-		return JobResult{Error: err}
-	}
-	defer res.Body.Close()
+		if jwt != "" {
+			req.Header.Add("Authorization", fmt.Sprintf("JWT %s", jwt))
+		}
+		res, err := httpClient.Do(req)
+		if err != nil {
+			return JobResult{Error: err}
+		}
+		defer res.Body.Close()
 
-	tagsResponse := new(GetTagsResponse)
-	err = json.NewDecoder(res.Body).Decode(tagsResponse)
-	if err != nil {
-		return JobResult{Error: err}
+		tagsResponse := new(GetTagsResponse)
+		err = json.NewDecoder(res.Body).Decode(tagsResponse)
+		if err != nil {
+			return JobResult{Error: err}
+		}
+		if tags == nil {
+			tags = make([]Tag, 0, tagsResponse.Count)
+		}
+		tags = append(tags, tagsResponse.Results...)
+		url = tagsResponse.Next
+
 	}
 	return JobResult{
 		Repository: job.Repository,
-		Page:       job.Page,
-		Count:      tagsResponse.Count,
-		Tags:       tagsResponse.Results,
+		Tags:       tags,
 	}
 }
