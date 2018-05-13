@@ -69,7 +69,7 @@ func sleepMillis(millis int) {
 	time.Sleep(time.Duration(millis) * time.Millisecond)
 }
 
-// GetTags get tag names for a repostiory
+// GetTags get tag names for a repository
 func GetTags(repository string, httpClient *http.Client, jwt string, numWorkers int) []string {
 	return GetTagsForRepository(repository, httpClient, jwt, numWorkers)
 }

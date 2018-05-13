@@ -1,5 +1,6 @@
 # itags
 [![Build Status](https://img.shields.io/travis/mgk/itags.svg)](https://travis-ci.org/mgk/itags)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mgk/itags)](https://goreportcard.com/report/github.com/mgk/itags)
 ![Flux Cap](https://img.shields.io/badge/flux%20capacitor-1.21%20GW-orange.svg)
 
 Quickly get tags for docker repositories using the docker hub REST API.
@@ -77,8 +78,6 @@ Many thanks to Jerry Baker for the [docker KB article showing how it's done](htt
 the max page size returned by docker is 100.*
 
 ### Todos
-- CI build
 - go doc for package
 - negative test cases
 - support other registries such as gcr.io
-- HATEOAS mode
