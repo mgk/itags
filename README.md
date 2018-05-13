@@ -1,6 +1,7 @@
 # itags
 [![Build Status](https://img.shields.io/travis/mgk/itags.svg)](https://travis-ci.org/mgk/itags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mgk/itags)](https://goreportcard.com/report/github.com/mgk/itags)
+[![Coverage Status](https://coveralls.io/repos/github/mgk/itags/badge.svg)](https://coveralls.io/github/mgk/itags)
 [![GoDoc](https://godoc.org/github.com/mgk/itags/cmd/itags?status.svg)](https://godoc.org/github.com/mgk/itags/cmd/itags)
 ![Flux Cap](https://img.shields.io/badge/flux%20capacitor-1.21%20GW-orange.svg)
 
