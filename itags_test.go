@@ -15,7 +15,7 @@ import (
 	"github.com/dnaeon/go-vcr/recorder"
 )
 
-var NumWorkers = 20
+var numWorkers = 20
 
 func mockHTTP(fixture string) (*recorder.Recorder, *http.Client) {
 	tape, err := recorder.New("fixtures/" + fixture)
@@ -48,7 +48,25 @@ func TestGetTagsSmallOfficialRepository(t *testing.T) {
 	repo := "hello-world"
 	tape, http := mockHTTP("hello-world")
 	defer tape.Stop()
-	tags := GetTags(repo, http, "", NumWorkers)
+	tags := GetTags(repo, http, "", numWorkers)
+	sort.Strings(tags)
+
+	assertEqual(t, "hello world",
+		[]string{
+			"latest",
+			"linux",
+			"nanoserver",
+			"nanoserver-1709",
+			"nanoserver-sac2016",
+			"nanoserver1709",
+		}, tags)
+}
+
+func TestGetTagsSmallOneWorkerIsMinimum(t *testing.T) {
+	repo := "hello-world"
+	tape, http := mockHTTP("hello-world")
+	defer tape.Stop()
+	tags := GetTags(repo, http, "", 0)
 	sort.Strings(tags)
 
 	assertEqual(t, "hello world",
@@ -66,7 +84,7 @@ func TestGetTagsSmallUnofficialRepository(t *testing.T) {
 	tape, http := mockHTTP("figlet")
 	defer tape.Stop()
 
-	tags := GetTags("mgkio/figlet", http, "", NumWorkers)
+	tags := GetTags("mgkio/figlet", http, "", numWorkers)
 	sort.Strings(tags)
 
 	assertEqual(t, "figlet", []string{"1", "latest"}, tags)
@@ -77,7 +95,7 @@ func TestGetTagsForRepository(t *testing.T) {
 	tape, http := mockHTTP("hello-world")
 	defer tape.Stop()
 
-	tags := GetTagsForRepository("hello-world", http, "", NumWorkers)
+	tags := GetTagsForRepository("hello-world", http, "", numWorkers)
 	sort.Strings(tags)
 
 	assertEqual(t, "hello world",
@@ -95,7 +113,7 @@ func TestGetTagsMultiplePages(t *testing.T) {
 	tape, http := mockHTTP("redis")
 	defer tape.Stop()
 
-	tags := GetTags("redis", http, "", NumWorkers)
+	tags := GetTags("redis", http, "", numWorkers)
 	sort.Strings(tags)
 
 	assertEqual(t, "redis", []string{
@@ -129,7 +147,7 @@ func TestGetTagsForRepositories(t *testing.T) {
 	tape, http := mockHTTP("hello-and-figlet")
 	defer tape.Stop()
 
-	tags := GetTagsForRepositories([]string{"hello-world", "mgkio/figlet"}, http, "", NumWorkers)
+	tags := GetTagsForRepositories([]string{"hello-world", "mgkio/figlet"}, http, "", numWorkers)
 	sort.Strings(tags)
 	assertEqual(t, "hello world and figlet", []string{
 		"hello-world:latest",
@@ -147,7 +165,7 @@ func TestGetDetailsLargeSingleRepo(t *testing.T) {
 	tape, http := mockHTTP("large-single")
 	defer tape.Stop()
 
-	tags := GetTagDetails([]string{"ubuntu"}, http, "", NumWorkers)
+	tags := GetTagDetails([]string{"ubuntu"}, http, "", numWorkers)
 	assertEqual(t, "tags", 1, len(tags))
 	assertEqual(t, "ubuntu repo", 257, len(tags["ubuntu"]))
 }
@@ -172,7 +190,7 @@ func TestGetDetailsLargeMultipleRepos(t *testing.T) {
 	for repo := range counts {
 		repos = append(repos, repo)
 	}
-	tags := GetTagDetails(repos, http, "", NumWorkers)
+	tags := GetTagDetails(repos, http, "", numWorkers)
 	for repo, count := range counts {
 		assertEqual(t, repo, count, len(tags[repo]))
 	}
