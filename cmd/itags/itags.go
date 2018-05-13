@@ -1,3 +1,5 @@
+// itags is a command line utility that lists the tags for
+// dockey hub repositories.
 package main
 
 import (
