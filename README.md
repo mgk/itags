@@ -24,7 +24,7 @@ itags alpine busybox debian docker golang \
       nginx openjdk postgres python redis ubuntu
 ```
 
-takes ~1.5 seconds to retrieve 3358 tags.
+takes < 3 seconds to retrieve roughly 4000 tags.
 
 ## Install
 
