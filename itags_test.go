@@ -1,13 +1,17 @@
 package itags
 
 import (
+	"bytes"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/dnaeon/go-vcr/cassette"
 	"github.com/dnaeon/go-vcr/recorder"
 )
 
@@ -23,6 +27,15 @@ func mockHTTP(fixture string) (*recorder.Recorder, *http.Client) {
 		log.Fatalln(err)
 	}
 	return tape, httpClient
+}
+
+var requestAndBodyMatcher = func(r *http.Request, i cassette.Request) bool {
+	var b bytes.Buffer
+	if _, err := b.ReadFrom(r.Body); err != nil {
+		return false
+	}
+	r.Body = ioutil.NopCloser(&b)
+	return cassette.DefaultMatcher(r, i) && (b.String() == "" || b.String() == i.Body)
 }
 
 func assertEqual(t *testing.T, message string, expected, actual interface{}) {
@@ -162,5 +175,29 @@ func TestGetDetailsLargeMultipleRepos(t *testing.T) {
 	tags := GetTagDetails(repos, http, "", NumWorkers)
 	for repo, count := range counts {
 		assertEqual(t, repo, count, len(tags[repo]))
+	}
+}
+
+func TestAuthenticateGoodCreds(t *testing.T) {
+	tape, httpClient := mockHTTP("good-creds")
+	defer tape.Stop()
+	tape.SetMatcher(requestAndBodyMatcher)
+
+	badCreds := Credentials{Username: "user", Password: "secret"}
+	token, err := Authenticate(httpClient, badCreds)
+	assertEqual(t, "error", nil, err)
+	assertEqual(t, "token incorrect", "ey...blah.blah...Sq", token)
+}
+
+func TestAuthenticateBadCreds(t *testing.T) {
+	tape, http := mockHTTP("bad-creds")
+	defer tape.Stop()
+	tape.SetMatcher(requestAndBodyMatcher)
+
+	badCreds := Credentials{Username: "user", Password: "nope-not-it"}
+	token, err := Authenticate(http, badCreds)
+	assertEqual(t, "token should be blank", "", token)
+	if strings.Index(err.Error(), "login error") == -1 {
+		t.Errorf("expected login error, got %#v", err)
 	}
 }
