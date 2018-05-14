@@ -53,7 +53,7 @@ export DOCKER_TOKEN=my-token
 itags my-username/my-private-repo
 ```
 
-Go pacakge API: see tests for examples.
+itags can also be used as a [go API](https://godoc.org/github.com/mgk/itags)
 
 ## Notes on private repos
 If username and password are supplied they are used to get a docker
