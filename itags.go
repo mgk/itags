@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -18,25 +17,34 @@ const (
 	pageSize          int    = 100
 )
 
-// Job - tag request to be made
-type Job struct {
-	Repository string
-}
-
-// JobResult - result of Job
-type JobResult struct {
-	Repository string
-	Tags       []Tag
-	Error      error
-}
-
-// Tag docker repository tag
+// A Tag represents a docker repository tag
 type Tag struct {
+	Repo        string
 	Name        string    `json:"name"`
 	LastUpdated time.Time `json:"last_updated"`
 }
 
-// Credentials for docker registry
+// ByRepoAndName - sort tags by repo and name
+type ByRepoAndName []Tag
+
+func (tags ByRepoAndName) Len() int      { return len(tags) }
+func (tags ByRepoAndName) Swap(i, j int) { tags[i], tags[j] = tags[j], tags[i] }
+func (tags ByRepoAndName) Less(i, j int) bool {
+	if tags[i].Repo == tags[j].Repo {
+		return tags[i].Name < tags[j].Name
+	}
+	return tags[i].Repo < tags[j].Repo
+}
+
+// ByLastUpdated - sort tags by last updated
+type ByLastUpdated []Tag
+
+func (tags ByLastUpdated) Len() int           { return len(tags) }
+func (tags ByLastUpdated) Swap(i, j int)      { tags[i], tags[j] = tags[j], tags[i] }
+func (tags ByLastUpdated) Less(i, j int) bool { return tags[i].LastUpdated.Before(tags[j].LastUpdated) }
+
+// Credentials is the username and password to
+// login to a docker registry
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -46,58 +54,48 @@ type loginResponse struct {
 	Token string `json:"token"`
 }
 
-// TagSlice tag slice sortable by name
-type TagSlice []Tag
+type jobRequest struct {
+	Repository string
+}
 
-func (t Tag) String() string { return t.Name }
+type jobResult struct {
+	Repository string
+	Tags       []Tag
+	Error      error
+}
 
-// GetTagsResponse - fields of interest from GET tags REST response
-type GetTagsResponse struct {
+type getTagsResponse struct {
 	Count   int    `json:"count"`
 	Next    string `json:"next"`
 	Results []Tag
 }
 
-func min(a int, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func sleepMillis(millis int) {
-	time.Sleep(time.Duration(millis) * time.Millisecond)
-}
-
-// GetTags get tag names for a repostiory
-func GetTags(repository string, httpClient *http.Client, jwt string, numWorkers int) []string {
+// GetTags gets tag names for a list of repositories
+// Returns tag names with each tag prefixed by its repository name
+func GetTags(repository string, httpClient *http.Client, jwt string, numWorkers int) []Tag {
 	return GetTagsForRepository(repository, httpClient, jwt, numWorkers)
 }
 
-// GetTagsForRepository get tag names for a repository
-func GetTagsForRepository(repository string, httpClient *http.Client, jwt string, numWorkers int) []string {
-	tags := GetTagDetails([]string{repository}, httpClient, jwt, numWorkers)[repository]
-	answer := make([]string, len(tags))
-	for i, tag := range tags {
-		answer[i] = tag.Name
-	}
-	return answer
+// GetTagsForRepository gets tag names for a repositorie
+// Returns tag names found in the repository
+func GetTagsForRepository(repository string, httpClient *http.Client, jwt string, numWorkers int) []Tag {
+	return GetTagDetails([]string{repository}, httpClient, jwt, numWorkers)[repository]
 }
 
-// GetTagsForRepositories get tag names for a list of repositories
-// Each tag is prefixed by its repository name
-func GetTagsForRepositories(repositories []string, httpClient *http.Client, jwt string, numWorkers int) []string {
+// GetTagsForRepositories gets tag names for a list of repositories
+// Returns tag names with each tag prefixed by its repository name
+func GetTagsForRepositories(repositories []string, httpClient *http.Client, jwt string, numWorkers int) []Tag {
 	tagsByRepo := GetTagDetails(repositories, httpClient, jwt, numWorkers)
-	answer := make([]string, 0, 100)
-	for repo, tags := range tagsByRepo {
+	answer := make([]Tag, 0, 100)
+	for _, tags := range tagsByRepo {
 		for _, tag := range tags {
-			answer = append(answer, fmt.Sprintf("%s:%s", repo, tag.Name))
+			answer = append(answer, tag)
 		}
 	}
 	return answer
 }
 
-// GetTagDetails get tags for a list of repostiories
+// GetTagDetails returns tags for a list of repostiories
 func GetTagDetails(repositories []string, httpClient *http.Client, jwt string, numWorkers int) map[string][]Tag {
 	if numWorkers < 1 {
 		numWorkers = 1
@@ -105,17 +103,17 @@ func GetTagDetails(repositories []string, httpClient *http.Client, jwt string, n
 	tags := make(map[string][]Tag)
 
 	// create channels for jobs to perform and their results
-	jobs := make(chan Job, len(repositories))
-	results := make(chan JobResult, len(repositories))
+	jobs := make(chan jobRequest, len(repositories))
+	results := make(chan jobResult, len(repositories))
 
 	// create pool of workers that receive jobs and send results
 	for i := 1; i <= numWorkers; i++ {
 		go worker(i, httpClient, jwt, jobs, results)
 	}
 
-	// create one job for each repository to query
+	// create one job request for each repository to query
 	for _, r := range repositories {
-		jobs <- Job{Repository: r}
+		jobs <- jobRequest{Repository: r}
 	}
 	close(jobs)
 
@@ -123,6 +121,9 @@ func GetTagDetails(repositories []string, httpClient *http.Client, jwt string, n
 	for len(tags) < len(repositories) {
 		select {
 		case r := <-results:
+			for i := range r.Tags {
+				r.Tags[i].Repo = r.Repository
+			}
 			tags[r.Repository] = append(tags[r.Repository], r.Tags...)
 		default:
 			sleepMillis(50)
@@ -131,26 +132,7 @@ func GetTagDetails(repositories []string, httpClient *http.Client, jwt string, n
 	return tags
 }
 
-func worker(id int, httpClient *http.Client, jwt string, jobs <-chan Job, results chan<- JobResult) {
-	for job := range jobs {
-		results <- queryTagsForRepository(httpClient, jwt, job)
-	}
-}
-
-func fakeTagBatch(job Job) JobResult {
-	sleepMillis(rand.Intn(1000))
-
-	tags := make([]Tag, pageSize)
-	for i := 0; i < pageSize; i++ {
-		tags[i] = Tag{Name: fmt.Sprintf("tag-%d", i+1)}
-	}
-	return JobResult{
-		Repository: job.Repository,
-		Tags:       tags,
-	}
-}
-
-// Authenticate and get docker token
+// Authenticate returns a docker token
 func Authenticate(httpClient *http.Client, credentials Credentials) (string, error) {
 
 	body, _ := json.Marshal(credentials)
@@ -174,7 +156,15 @@ func Authenticate(httpClient *http.Client, credentials Credentials) (string, err
 	return loginResponse.Token, err
 }
 
-func queryTagsForRepository(httpClient *http.Client, jwt string, job Job) JobResult {
+func worker(id int, httpClient *http.Client, jwt string,
+	jobs <-chan jobRequest, results chan<- jobResult) {
+
+	for job := range jobs {
+		results <- queryTagsForRepository(httpClient, jwt, job)
+	}
+}
+
+func queryTagsForRepository(httpClient *http.Client, jwt string, job jobRequest) jobResult {
 	repository := job.Repository
 
 	// handle "official" docker repos
@@ -188,7 +178,7 @@ func queryTagsForRepository(httpClient *http.Client, jwt string, job Job) JobRes
 	for url != "" {
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			return JobResult{Error: err}
+			return jobResult{Error: err}
 		}
 
 		if jwt != "" {
@@ -196,14 +186,14 @@ func queryTagsForRepository(httpClient *http.Client, jwt string, job Job) JobRes
 		}
 		res, err := httpClient.Do(req)
 		if err != nil {
-			return JobResult{Error: err}
+			return jobResult{Error: err}
 		}
 		defer res.Body.Close()
 
-		tagsResponse := new(GetTagsResponse)
+		tagsResponse := new(getTagsResponse)
 		err = json.NewDecoder(res.Body).Decode(tagsResponse)
 		if err != nil {
-			return JobResult{Error: err}
+			return jobResult{Error: err}
 		}
 		if tags == nil {
 			tags = make([]Tag, 0, tagsResponse.Count)
@@ -212,8 +202,12 @@ func queryTagsForRepository(httpClient *http.Client, jwt string, job Job) JobRes
 		url = tagsResponse.Next
 
 	}
-	return JobResult{
+	return jobResult{
 		Repository: job.Repository,
 		Tags:       tags,
 	}
+}
+
+func sleepMillis(millis int) {
+	time.Sleep(time.Duration(millis) * time.Millisecond)
 }

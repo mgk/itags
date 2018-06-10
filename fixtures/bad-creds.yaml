@@ -1,0 +1,32 @@
+---
+version: 1
+interactions:
+- request:
+    body: '{"username":"user","password":"nope-not-it"}'
+    form: {}
+    headers:
+      Content-Type:
+      - application/json
+    url: https://hub.docker.com/v2/users/login/
+    method: POST
+  response:
+    body: |
+      {"detail": "Incorrect authentication credentials."}
+    headers:
+      Accept:
+      - application/json
+      Date:
+      - Sun, 13 May 2018 21:00:50 GMT
+      Server:
+      - nginx
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+    status: 401 Unauthorized
+    code: 401
+    duration: ""

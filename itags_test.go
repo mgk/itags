@@ -1,17 +1,21 @@
 package itags
 
 import (
+	"bytes"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/dnaeon/go-vcr/cassette"
 	"github.com/dnaeon/go-vcr/recorder"
 )
 
-var NumWorkers = 20
+var numWorkers = 20
 
 func mockHTTP(fixture string) (*recorder.Recorder, *http.Client) {
 	tape, err := recorder.New("fixtures/" + fixture)
@@ -25,6 +29,15 @@ func mockHTTP(fixture string) (*recorder.Recorder, *http.Client) {
 	return tape, httpClient
 }
 
+var requestAndBodyMatcher = func(r *http.Request, i cassette.Request) bool {
+	var b bytes.Buffer
+	if _, err := b.ReadFrom(r.Body); err != nil {
+		return false
+	}
+	r.Body = ioutil.NopCloser(&b)
+	return cassette.DefaultMatcher(r, i) && (b.String() == "" || b.String() == i.Body)
+}
+
 func assertEqual(t *testing.T, message string, expected, actual interface{}) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("%s: expected: %v, actual: %v", message, expected, actual)
@@ -35,8 +48,12 @@ func TestGetTagsSmallOfficialRepository(t *testing.T) {
 	repo := "hello-world"
 	tape, http := mockHTTP("hello-world")
 	defer tape.Stop()
-	tags := GetTags(repo, http, "", NumWorkers)
-	sort.Strings(tags)
+	tags := GetTags(repo, http, "", numWorkers)
+	names := make([]string, len(tags))
+	for i, t := range tags {
+		names[i] = t.Name
+	}
+	sort.Strings(names)
 
 	assertEqual(t, "hello world",
 		[]string{
@@ -46,27 +63,57 @@ func TestGetTagsSmallOfficialRepository(t *testing.T) {
 			"nanoserver-1709",
 			"nanoserver-sac2016",
 			"nanoserver1709",
-		}, tags)
+		}, names)
+}
+
+func TestGetTagsSmallOneWorkerIsMinimum(t *testing.T) {
+	repo := "hello-world"
+	tape, http := mockHTTP("hello-world")
+	defer tape.Stop()
+	tags := GetTags(repo, http, "", 0)
+	names := make([]string, len(tags))
+	for i, t := range tags {
+		names[i] = t.Name
+	}
+	sort.Strings(names)
+
+	assertEqual(t, "hello world",
+		[]string{
+			"latest",
+			"linux",
+			"nanoserver",
+			"nanoserver-1709",
+			"nanoserver-sac2016",
+			"nanoserver1709",
+		}, names)
 }
 
 func TestGetTagsSmallUnofficialRepository(t *testing.T) {
 	tape, http := mockHTTP("figlet")
 	defer tape.Stop()
 
-	tags := GetTags("mgkio/figlet", http, "", NumWorkers)
-	sort.Strings(tags)
+	tags := GetTags("mgkio/figlet", http, "", numWorkers)
+	names := make([]string, len(tags))
+	for i, t := range tags {
+		names[i] = t.Name
+	}
+	sort.Strings(names)
 
-	assertEqual(t, "figlet", []string{"1", "latest"}, tags)
+	assertEqual(t, "figlet", []string{"1", "latest"}, names)
 }
 
-// GetTags is an alias fgor GetTagsForRepository
+// GetTags is an alias for GetTagsForRepository
 func TestGetTagsForRepository(t *testing.T) {
 	tape, http := mockHTTP("hello-world")
 	defer tape.Stop()
 
-	tags := GetTagsForRepository("hello-world", http, "", NumWorkers)
-	sort.Strings(tags)
-
+	tags := GetTagsForRepository("hello-world", http, "", numWorkers)
+	sort.Sort(ByRepoAndName(tags))
+	names := make([]string, len(tags))
+	for i, tag := range tags {
+		assertEqual(t, "tag repo", "hello-world", tag.Repo)
+		names[i] = tag.Name
+	}
 	assertEqual(t, "hello world",
 		[]string{
 			"latest",
@@ -75,15 +122,19 @@ func TestGetTagsForRepository(t *testing.T) {
 			"nanoserver-1709",
 			"nanoserver-sac2016",
 			"nanoserver1709",
-		}, tags)
+		}, names)
 }
 
 func TestGetTagsMultiplePages(t *testing.T) {
 	tape, http := mockHTTP("redis")
 	defer tape.Stop()
 
-	tags := GetTags("redis", http, "", NumWorkers)
-	sort.Strings(tags)
+	tags := GetTags("redis", http, "", numWorkers)
+	names := make([]string, len(tags))
+	for i, t := range tags {
+		names[i] = t.Name
+	}
+	sort.Strings(names)
 
 	assertEqual(t, "redis", []string{
 		"2", "2-32bit", "2.6", "2.6-32bit", "2.6.17", "2.6.17-32bit", "2.8",
@@ -110,14 +161,18 @@ func TestGetTagsMultiplePages(t *testing.T) {
 		"4.0.5-alpine", "4.0.6", "4.0.6-32bit", "4.0.6-alpine", "4.0.7", "4.0.7-32bit",
 		"4.0.7-alpine", "4.0.8", "4.0.8-32bit", "4.0.8-alpine", "4.0.9", "4.0.9-32bit",
 		"4.0.9-alpine", "alpine", "latest", "nanoserver", "windowsservercore",
-	}, tags)
+	}, names)
 }
 func TestGetTagsForRepositories(t *testing.T) {
 	tape, http := mockHTTP("hello-and-figlet")
 	defer tape.Stop()
 
-	tags := GetTagsForRepositories([]string{"hello-world", "mgkio/figlet"}, http, "", NumWorkers)
-	sort.Strings(tags)
+	tags := GetTagsForRepositories([]string{"hello-world", "mgkio/figlet"}, http, "", numWorkers)
+	sort.Sort(ByRepoAndName(tags))
+	names := make([]string, len(tags))
+	for i, tag := range tags {
+		names[i] = tag.Repo + ":" + tag.Name
+	}
 	assertEqual(t, "hello world and figlet", []string{
 		"hello-world:latest",
 		"hello-world:linux",
@@ -127,16 +182,19 @@ func TestGetTagsForRepositories(t *testing.T) {
 		"hello-world:nanoserver1709",
 		"mgkio/figlet:1",
 		"mgkio/figlet:latest",
-	}, tags)
+	}, names)
 }
 
 func TestGetDetailsLargeSingleRepo(t *testing.T) {
 	tape, http := mockHTTP("large-single")
 	defer tape.Stop()
 
-	tags := GetTagDetails([]string{"ubuntu"}, http, "", NumWorkers)
+	tags := GetTagDetails([]string{"ubuntu"}, http, "", numWorkers)
 	assertEqual(t, "tags", 1, len(tags))
 	assertEqual(t, "ubuntu repo", 257, len(tags["ubuntu"]))
+	for _, tag := range tags["ubuntu"] {
+		assertEqual(t, "tag repo", "ubuntu", tag.Repo)
+	}
 }
 func TestGetDetailsLargeMultipleRepos(t *testing.T) {
 	tape, http := mockHTTP("large")
@@ -159,8 +217,32 @@ func TestGetDetailsLargeMultipleRepos(t *testing.T) {
 	for repo := range counts {
 		repos = append(repos, repo)
 	}
-	tags := GetTagDetails(repos, http, "", NumWorkers)
+	tags := GetTagDetails(repos, http, "", numWorkers)
 	for repo, count := range counts {
 		assertEqual(t, repo, count, len(tags[repo]))
+	}
+}
+
+func TestAuthenticateGoodCreds(t *testing.T) {
+	tape, httpClient := mockHTTP("good-creds")
+	defer tape.Stop()
+	tape.SetMatcher(requestAndBodyMatcher)
+
+	badCreds := Credentials{Username: "user", Password: "secret"}
+	token, err := Authenticate(httpClient, badCreds)
+	assertEqual(t, "error", nil, err)
+	assertEqual(t, "token incorrect", "ey...blah.blah...Sq", token)
+}
+
+func TestAuthenticateBadCreds(t *testing.T) {
+	tape, http := mockHTTP("bad-creds")
+	defer tape.Stop()
+	tape.SetMatcher(requestAndBodyMatcher)
+
+	badCreds := Credentials{Username: "user", Password: "nope-not-it"}
+	token, err := Authenticate(http, badCreds)
+	assertEqual(t, "token should be blank", "", token)
+	if strings.Index(err.Error(), "login error") == -1 {
+		t.Errorf("expected login error, got %#v", err)
 	}
 }

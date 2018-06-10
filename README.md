@@ -1,5 +1,8 @@
 # itags
 [![Build Status](https://img.shields.io/travis/mgk/itags.svg)](https://travis-ci.org/mgk/itags)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mgk/itags)](https://goreportcard.com/report/github.com/mgk/itags)
+[![Coverage Status](https://coveralls.io/repos/github/mgk/itags/badge.svg)](https://coveralls.io/github/mgk/itags)
+[![GoDoc](https://godoc.org/github.com/mgk/itags/cmd/itags?status.svg)](https://godoc.org/github.com/mgk/itags/cmd/itags)
 ![Flux Cap](https://img.shields.io/badge/flux%20capacitor-1.21%20GW-orange.svg)
 
 Quickly get tags for docker repositories using the docker hub REST API.
@@ -21,7 +24,7 @@ itags alpine busybox debian docker golang \
       nginx openjdk postgres python redis ubuntu
 ```
 
-takes ~1.5 seconds to retrieve 3358 tags.
+takes < 3 seconds to retrieve roughly 4000 tags.
 
 ## Install
 
@@ -50,7 +53,7 @@ export DOCKER_TOKEN=my-token
 itags my-username/my-private-repo
 ```
 
-Go pacakge API: see tests for examples.
+itags can also be used as a [go API](https://godoc.org/github.com/mgk/itags)
 
 ## Notes on private repos
 If username and password are supplied they are used to get a docker
@@ -75,10 +78,3 @@ Many thanks to Jerry Baker for the [docker KB article showing how it's done](htt
 
 *Note: the KB article uses a large page size (10,000) but as far as I can tell
 the max page size returned by docker is 100.*
-
-### Todos
-- CI build
-- go doc for package
-- negative test cases
-- support other registries such as gcr.io
-- HATEOAS mode
