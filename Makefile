@@ -1,4 +1,4 @@
-VERSION = 2.2.0
+VERSION = 2.3.0
 PKG = ./cmd/itags
 PLATFORMS = darwin/386 darwin/amd64 linux/386 linux/amd64 linux/arm windows/386 windows/amd64
 
