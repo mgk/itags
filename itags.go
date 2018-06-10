@@ -19,9 +19,29 @@ const (
 
 // A Tag represents a docker repository tag
 type Tag struct {
+	Repo        string
 	Name        string    `json:"name"`
 	LastUpdated time.Time `json:"last_updated"`
 }
+
+// ByRepoAndName - sort tags by repo and name
+type ByRepoAndName []Tag
+
+func (tags ByRepoAndName) Len() int      { return len(tags) }
+func (tags ByRepoAndName) Swap(i, j int) { tags[i], tags[j] = tags[j], tags[i] }
+func (tags ByRepoAndName) Less(i, j int) bool {
+	if tags[i].Repo == tags[j].Repo {
+		return tags[i].Name < tags[j].Name
+	}
+	return tags[i].Repo < tags[j].Repo
+}
+
+// ByLastUpdated - sort tags by last updated
+type ByLastUpdated []Tag
+
+func (tags ByLastUpdated) Len() int           { return len(tags) }
+func (tags ByLastUpdated) Swap(i, j int)      { tags[i], tags[j] = tags[j], tags[i] }
+func (tags ByLastUpdated) Less(i, j int) bool { return tags[i].LastUpdated.Before(tags[j].LastUpdated) }
 
 // Credentials is the username and password to
 // login to a docker registry
@@ -52,29 +72,24 @@ type getTagsResponse struct {
 
 // GetTags gets tag names for a list of repositories
 // Returns tag names with each tag prefixed by its repository name
-func GetTags(repository string, httpClient *http.Client, jwt string, numWorkers int) []string {
+func GetTags(repository string, httpClient *http.Client, jwt string, numWorkers int) []Tag {
 	return GetTagsForRepository(repository, httpClient, jwt, numWorkers)
 }
 
 // GetTagsForRepository gets tag names for a repositorie
 // Returns tag names found in the repository
-func GetTagsForRepository(repository string, httpClient *http.Client, jwt string, numWorkers int) []string {
-	tags := GetTagDetails([]string{repository}, httpClient, jwt, numWorkers)[repository]
-	answer := make([]string, len(tags))
-	for i, tag := range tags {
-		answer[i] = tag.Name
-	}
-	return answer
+func GetTagsForRepository(repository string, httpClient *http.Client, jwt string, numWorkers int) []Tag {
+	return GetTagDetails([]string{repository}, httpClient, jwt, numWorkers)[repository]
 }
 
 // GetTagsForRepositories gets tag names for a list of repositories
 // Returns tag names with each tag prefixed by its repository name
-func GetTagsForRepositories(repositories []string, httpClient *http.Client, jwt string, numWorkers int) []string {
+func GetTagsForRepositories(repositories []string, httpClient *http.Client, jwt string, numWorkers int) []Tag {
 	tagsByRepo := GetTagDetails(repositories, httpClient, jwt, numWorkers)
-	answer := make([]string, 0, 100)
-	for repo, tags := range tagsByRepo {
+	answer := make([]Tag, 0, 100)
+	for _, tags := range tagsByRepo {
 		for _, tag := range tags {
-			answer = append(answer, fmt.Sprintf("%s:%s", repo, tag.Name))
+			answer = append(answer, tag)
 		}
 	}
 	return answer
@@ -106,6 +121,9 @@ func GetTagDetails(repositories []string, httpClient *http.Client, jwt string, n
 	for len(tags) < len(repositories) {
 		select {
 		case r := <-results:
+			for i := range r.Tags {
+				r.Tags[i].Repo = r.Repository
+			}
 			tags[r.Repository] = append(tags[r.Repository], r.Tags...)
 		default:
 			sleepMillis(50)
