@@ -58,7 +58,7 @@ itags can also be used as a [go API](https://godoc.org/github.com/mgk/itags)
 ## Notes on private repos
 If username and password are supplied they are used to get a docker
 [JWT](https://jwt.io/) which is sent with each request to the docker registry.
-Otherwise if the environment variable `DOCKER_TOKEN` is set it is used instead.
+Otherwise if the `--jwt` option is passed it is used.
 
 You can get a JWT with `curl` and [jq](https://stedolan.github.io/jq/):
 
